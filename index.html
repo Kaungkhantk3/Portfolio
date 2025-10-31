@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
   <!-- TailwindCSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -46,6 +47,9 @@
       transition: width .25s ease;
     }
     .link-underline:hover::after { width: 100%; }
+    @media (prefers-reduced-motion: reduce) {
+    .fade-slide { transition: none !important; transform: none !important; opacity: 1 !important; }
+  }
     /* Click ripple */
     .ripple { position: relative; overflow: hidden; }
     .ripple:after { content: ""; position: absolute; background: rgba(255,255,255,0.4); border-radius: 50%; transform: scale(0); opacity: .6; }
@@ -87,6 +91,12 @@
         <div>
           <p class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/30 px-3 py-1 rounded-full">Web Developer • Computer Engineering Student</p>
           <h1 class="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight">Hi, I'm <span class="text-brand-700 dark:text-brand-400">Kaung Khant Kyaw</span>.</h1>
+          <div class="relative h-8 mt-2">
+            <span id="rotator"
+                  class="absolute left-0 top-0 text-2xl md:text-3xl font-semibold text-white opacity-0 translate-y-2">
+              Software Engineer
+            </span>
+          </div>
           <p class="mt-4 text-lg text-slate-600 dark:text-slate-300">Passionate about building clean, performant apps and data‑driven features. Seeking an internship (Jan–May 2026) in Thailand to grow and contribute.</p>
           <div class="mt-6 flex flex-wrap gap-3">
             <a href="#projects" class="ripple inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-600 text-white hover:shadow-elev active:translate-y-[1px] transition">View Projects →</a>
@@ -360,6 +370,59 @@
       });
     });
   </script>
+
+<script>
+  const words = ["Web Developer", "Data Enthusiast", "AI Learner"]; 
+  const el = document.getElementById("rotator");
+  
+  // Animation timings (ms)
+  const enterDur = 450;    // fade+slide in
+  const stayDur  = 1600;   // visible time
+  const exitDur  = 350;    // fade+slide out
+  let i = 0;
+  
+  // Utility: animate in/out via Tailwind classes
+  function enter(text){
+    el.textContent = text;
+    el.style.transition = `opacity ${enterDur}ms ease, transform ${enterDur}ms ease`;
+    el.classList.add("fade-slide");
+    el.style.opacity = 0;
+    el.style.transform = "translateY(8px)";
+    requestAnimationFrame(() => {
+      el.style.opacity = 1;
+      el.style.transform = "translateY(0)";
+    });
+  }
+  
+  function exit(callback){
+    el.style.transition = `opacity ${exitDur}ms ease, transform ${exitDur}ms ease`;
+    el.style.opacity = 0;
+    el.style.transform = "translateY(-6px)";
+    setTimeout(callback, exitDur);
+  }
+  
+  // Loop
+  function cycle(){
+    enter(words[i]);
+    setTimeout(() => {
+      exit(() => {
+        i = (i + 1) % words.length;
+        setTimeout(cycle, 60); // small gap between words
+      });
+    }, enterDur + stayDur);
+  }
+  
+  // Start when visible to avoid animating off-screen
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some(e => e.isIntersecting)) {
+      io.disconnect();
+      cycle();
+    }
+  }, { threshold: 0.2 });
+  io.observe(el);
+  </script>
+  
+  
   <style>
     @keyframes ripple { to { transform: scale(2.5); opacity: 0; } }
   </style>
